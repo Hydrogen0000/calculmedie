@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculator Medii URI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef0f6; --bg2:#e4e8f5;
+    --card:#ffffff; --card-border:#e7e9f2;
+    --ink:#161824; --sub:#6c7089;
+    --accent:#6d5ef5; --accent2:#00c6ae; --accent-ink:#ffffff;
+    --line:#e7e9f2; --danger:#ef5a6f; --soft:#f4f2ff;
+    --shadow:0 10px 30px -12px rgba(35,30,90,.18);
+    --radius:20px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1017; --bg2:#14151f;
+      --card:#191b26; --card-border:#282a3a;
+      --ink:#f1f1f8; --sub:#9a9db3;
+      --accent:#8b7bff; --accent2:#2fe0c4; --accent-ink:#10121b;
+      --line:#2b2d3f; --danger:#ff7086; --soft:#20223a;
+      --shadow:0 10px 30px -12px rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1017; --bg2:#14151f;
+    --card:#191b26; --card-border:#282a3a;
+    --ink:#f1f1f8; --sub:#9a9db3;
+    --accent:#8b7bff; --accent2:#2fe0c4; --accent-ink:#10121b;
+    --line:#2b2d3f; --danger:#ff7086; --soft:#20223a;
+    --shadow:0 10px 30px -12px rgba(0,0,0,.55);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0; color:var(--ink);
+    background:
+      radial-gradient(1200px 500px at 10% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent),
+      radial-gradient(1000px 500px at 100% 0%, color-mix(in srgb, var(--accent2) 14%, transparent), transparent),
+      var(--bg);
+    font-family:'Plus Jakarta Sans', -apple-system, sans-serif;
+    padding-top:calc(20px + env(safe-area-inset-top,0px));
+    padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));
+    padding-left:14px; padding-right:14px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+  h1{
+    font-family:'Space Grotesk',sans-serif; font-size:clamp(1.35rem,5vw,1.7rem); font-weight:700;
+    margin:0 0 16px; letter-spacing:-.02em;
+  }
+
+  .uri-card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:18px;
+    padding:14px; margin-bottom:12px; box-shadow:var(--shadow);
+  }
+  .uri-head{display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;}
+  .uri-head input.uname{
+    flex:1; min-width:80px; font-family:'Space Grotesk',sans-serif; font-size:1rem; font-weight:600;
+    background:transparent; border:none; border-bottom:2px solid transparent;
+    color:var(--ink); padding:6px 2px; transition:border-color .15s ease;
+  }
+  .uri-head input.uname:focus{outline:none; border-color:var(--accent);}
+  .uri-head .uavg{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:1rem; font-weight:700; color:var(--accent-ink); white-space:nowrap;
+    background:linear-gradient(135deg, var(--accent), var(--accent2));
+    padding:7px 14px; border-radius:999px;
+  }
+  .grades{margin-bottom:10px; display:flex; flex-wrap:wrap; gap:8px;}
+  .grow{display:flex; gap:6px; align-items:center;}
+  .grow input[type=number]{
+    width:60px; padding:11px 4px; border:1.5px solid var(--line); border-radius:10px;
+    background:var(--bg2); color:var(--ink); font-family:'Space Grotesk',sans-serif;
+    font-size:16px; font-weight:600; text-align:center; transition:border-color .15s ease;
+  }
+  .grow input[type=number]::placeholder{font-size:13px; font-weight:500; color:var(--sub); opacity:.7;}
+  .grow input[type=number]:focus{outline:none; border-color:var(--accent);}
+  .grow button.del{
+    border:none; background:transparent; color:var(--danger); font-size:1.3rem;
+    cursor:pointer; padding:6px 8px; line-height:1; opacity:.7; min-width:40px; min-height:40px;
+  }
+  .grow button.del:hover{opacity:1;}
+  .stepper{gap:0; border:1.5px solid var(--line); border-radius:10px; overflow:hidden;}
+  .stepper input[type=number]{
+    border:none; border-left:1.5px solid var(--line); border-right:1.5px solid var(--line);
+    border-radius:0; background:var(--card); width:56px;
+  }
+  .stepper input[type=number]:focus{border-left:1.5px solid var(--line); border-right:1.5px solid var(--line);}
+  .step-btn{
+    border:none; background:var(--bg2); color:var(--ink); width:44px; height:44px;
+    font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:background .15s ease, color .15s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .step-btn:active:not(:disabled){background:var(--accent); color:var(--accent-ink);}
+  .step-btn:hover:not(:disabled){background:var(--accent); color:var(--accent-ink);}
+  .step-btn:disabled{opacity:.35; cursor:not-allowed;}
+  .del-section{
+    border:none; background:transparent; color:var(--danger); font-size:1.4rem;
+    cursor:pointer; padding:6px 8px; line-height:1; opacity:.6; min-width:40px; min-height:40px;
+    margin-left:auto;
+  }
+  .del-section:hover{opacity:1;}
+  .readd-row{display:flex; gap:8px; justify-content:center; margin-bottom:14px; flex-wrap:wrap;}
+  .miniadd{
+    border:1.5px dashed var(--line); background:transparent; color:var(--sub);
+    border-radius:10px; padding:10px 14px; font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:600; font-size:.82rem; cursor:pointer; transition:all .15s ease; min-height:40px;
+  }
+  .miniadd:hover{border-color:var(--accent); color:var(--accent); background:var(--soft);}
+  .modul-row{
+    display:flex; align-items:center; gap:10px; margin-top:10px; padding-top:10px;
+    border-top:1px dashed var(--line); font-size:.85rem; color:var(--sub); font-weight:500; flex-wrap:wrap;
+  }
+  .modul-row input{
+    width:60px; padding:11px 4px; border:1.5px solid var(--line); border-radius:10px;
+    background:var(--bg2); color:var(--ink); font-family:'Space Grotesk',sans-serif;
+    font-size:16px; font-weight:600; text-align:center;
+  }
+  .modul-row input::placeholder{font-size:13px; font-weight:500; color:var(--sub); opacity:.7;}
+  .modul-row input:focus{outline:none; border-color:var(--accent);}
+  .sub-line{font-size:.78rem; color:var(--sub); margin-top:6px; font-weight:500;}
+
+  .summary{
+    background:var(--card); border:1px solid var(--card-border); border-radius:18px;
+    padding:22px 18px; text-align:center; margin-top:20px; box-shadow:var(--shadow);
+  }
+  .summary .genavg{font-size:.92rem; margin-bottom:14px; color:var(--sub); font-weight:500;}
+  .summary .genavg b{color:var(--ink); font-family:'Space Grotesk',sans-serif; font-size:1.1rem;}
+  .final-row{
+    display:flex; align-items:center; justify-content:center; gap:10px; margin:0 0 18px;
+    font-size:.88rem; color:var(--sub); font-weight:500;
+  }
+  .final-row input{
+    width:72px; padding:11px; border:1.5px solid var(--line); border-radius:10px;
+    background:var(--bg2); color:var(--ink); font-family:'Space Grotesk',sans-serif;
+    font-size:16px; font-weight:600; text-align:center;
+  }
+  .final-row input::placeholder{font-size:13px; font-weight:500; color:var(--sub); opacity:.7;}
+  .final-row input:focus{outline:none; border-color:var(--accent);}
+  .final-num{
+    font-family:'Space Grotesk',sans-serif; font-size:clamp(2.2rem,10vw,3rem); font-weight:700; word-break:break-all;
+    background:linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .final-label{color:var(--sub); font-size:.82rem; margin-top:6px; font-weight:500;}
+  .options{margin-top:16px; font-size:.82rem; color:var(--sub); font-weight:500;}
+  .options select{
+    font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; padding:8px 10px; border-radius:8px;
+    border:1.5px solid var(--line); background:var(--bg2); color:var(--ink); font-size:16px;
+  }
+
+  .stickybar{
+    position:fixed; left:0; right:0; bottom:0; z-index:20;
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-top:1px solid var(--card-border);
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .stickybar .sb-label{font-size:.78rem; color:var(--sub); font-weight:600;}
+  .stickybar .sb-num{
+    font-family:'Space Grotesk',sans-serif; font-size:1.3rem; font-weight:700;
+    background:linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Calculator Medii — URI</h1>
+
+  <div id="uriList"></div>
+  <div id="readd" class="readd-row"></div>
+
+  <div class="summary">
+    <div class="genavg">Media generală (9): <b id="genAvg">—</b></div>
+    <div class="final-row">
+      Examen final:
+      <input type="number" step="any" min="1" max="10" id="examFinal">
+    </div>
+    <div class="final-num" id="finalNum">—</div>
+    <div class="final-label">Media totală finală (75% medie generală + 25% examen final)</div>
+    <div class="options">
+      Zecimale:
+      <select id="decimals">
+        <option value="2">2</option>
+        <option value="4" selected>4</option>
+        <option value="6">6</option>
+        <option value="10">10</option>
+        <option value="20">fără limită (exact)</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="stickybar">
+  <span class="sb-label">Media totală</span>
+  <span class="sb-num" id="stickyNum">—</span>
+</div>
+
+<script>
+(function(){
+  const uriList = document.getElementById('uriList');
+  const readdEl = document.getElementById('readd');
+  const genAvgEl = document.getElementById('genAvg');
+  const finalNumEl = document.getElementById('finalNum');
+  const examFinalEl = document.getElementById('examFinal');
+  const decimalsSel = document.getElementById('decimals');
+  const stickyNumEl = document.getElementById('stickyNum');
+
+  let uris = [];
+  for(let i=1;i<=7;i++){
+    uris.push({name:'URI ' + i, grades:['',''], modul:''});
+  }
+  uris.push({name:'Practică', grades:[''], modul:'', single:true});
+  uris.push({name:'Purtare', grades:[''], modul:'', single:true});
+
+  function clamp10(v){
+    const n = parseFloat((v||'').toString().replace(',','.'));
+    if(isNaN(n)) return v;
+    if(n > 10) return '10';
+    if(n < 0) return '0';
+    return v;
+  }
+
+  function fmt(num){
+    const dec = decimalsSel.value;
+    if(dec === '20'){
+      return num.toFixed(15).replace(/0+$/,'').replace(/\.$/,'');
+    }
+    return num.toFixed(parseInt(dec,10));
+  }
+
+  function gradeAvg(grades){
+    const nums = grades.map(g => parseFloat((g||'').replace(',','.'))).filter(n => !isNaN(n));
+    if(nums.length === 0) return null;
+    return nums.reduce((a,b)=>a+b,0) / nums.length;
+  }
+
+  function uriFinal(uri){
+    if(uri.single){
+      const g = parseFloat((uri.grades[0]||'').replace(',','.'));
+      return isNaN(g) ? null : g;
+    }
+    const gAvg = gradeAvg(uri.grades);
+    const modul = parseFloat((uri.modul||'').replace(',','.'));
+    if(gAvg === null || isNaN(modul)) return null;
+    return 0.5*gAvg + 0.5*modul;
+  }
+
+  function render(){
+    uriList.innerHTML = '';
+    uris.forEach((uri, ui) => {
+      const card = document.createElement('div');
+      card.className = 'uri-card';
+
+      const gAvg = gradeAvg(uri.grades);
+      const fin = uriFinal(uri);
+
+      let gradesHtml = '';
+      uri.grades.forEach((g, gi) => {
+        if(uri.single){
+          const gv = parseFloat((g||'').replace(',','.'));
+          const atMin = !isNaN(gv) && gv <= 1;
+          const atMax = !isNaN(gv) && gv >= 10;
+          gradesHtml += `
+            <div class="grow stepper">
+              <button class="step-btn" data-step="-1" data-ui="${ui}" data-gi="${gi}" ${atMin ? 'disabled' : ''} title="Scade">−</button>
+              <input type="number" step="any" min="1" max="10" data-ui="${ui}" data-gi="${gi}" value="${g}">
+              <button class="step-btn" data-step="1" data-ui="${ui}" data-gi="${gi}" ${atMax ? 'disabled' : ''} title="Crește">+</button>
+            </div>`;
+        } else {
+          gradesHtml += `
+            <div class="grow">
+              <input type="number" step="any" min="1" max="10" data-ui="${ui}" data-gi="${gi}" value="${g}">
+              <button class="del" data-ui="${ui}" data-gi="${gi}" title="Șterge">×</button>
+            </div>`;
+        }
+      });
+
+      card.innerHTML = `
+        <div class="uri-head">
+          <input class="uname" data-ui="${ui}" value="${uri.name.replace(/"/g,'&quot;')}">
+          <div class="uavg">${fin===null ? '—' : fmt(fin)}</div>
+          ${uri.single ? `<button class="del-section" data-delui="${ui}" title="Șterge secțiunea">×</button>` : ''}
+        </div>
+        <div class="grades">${gradesHtml}</div>
+        ${uri.single ? '' : `
+        <button class="miniadd" data-addui="${ui}">+ notă</button>
+        <div class="sub-line">Media notelor: ${gAvg===null ? '—' : fmt(gAvg)}</div>
+        <div class="modul-row">
+          Examen de modul:
+          <input type="number" step="any" min="1" max="10" data-modul="${ui}" value="${uri.modul}">
+        </div>`}
+      `;
+      uriList.appendChild(card);
+    });
+
+    uriList.querySelectorAll('input.uname').forEach(inp => {
+      inp.addEventListener('input', e => {
+        uris[+e.target.dataset.ui].name = e.target.value;
+      });
+    });
+    uriList.querySelectorAll('.grow input[type=number]').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const ui = +e.target.dataset.ui, gi = +e.target.dataset.gi;
+        const v = clamp10(e.target.value);
+        if(v !== e.target.value) e.target.value = v;
+        uris[ui].grades[gi] = v;
+        computeAll();
+      });
+    });
+    uriList.querySelectorAll('.grow .del').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const ui = +e.target.dataset.ui, gi = +e.target.dataset.gi;
+        uris[ui].grades.splice(gi,1);
+        render(); computeAll();
+      });
+    });
+    uriList.querySelectorAll('.miniadd').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const ui = +e.target.dataset.addui;
+        uris[ui].grades.push('');
+        render(); computeAll();
+      });
+    });
+    uriList.querySelectorAll('.step-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        if(btn.disabled) return;
+        const ui = +btn.dataset.ui, gi = +btn.dataset.gi, step = +btn.dataset.step;
+        const cur = parseFloat((uris[ui].grades[gi]||'').toString().replace(',','.'));
+        let next = (isNaN(cur) ? (step > 0 ? 0 : 1) : cur) + step;
+        if(next > 10) next = 10;
+        if(next < 0) next = 0;
+        // keep whole numbers clean, avoid float artifacts
+        next = Math.round(next * 100) / 100;
+        uris[ui].grades[gi] = String(next);
+        render(); computeAll();
+      });
+    });
+    uriList.querySelectorAll('.del-section').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const ui = +e.target.dataset.delui;
+        uris.splice(ui, 1);
+        render(); computeAll();
+      });
+    });
+
+    // re-add buttons for removed optional sections
+    readdEl.innerHTML = '';
+    ['Practică','Purtare'].forEach(name => {
+      if(!uris.some(u => u.name === name)){
+        const b = document.createElement('button');
+        b.className = 'miniadd';
+        b.textContent = '+ ' + name;
+        b.addEventListener('click', () => {
+          uris.push({name, grades:[''], modul:'', single:true});
+          render(); computeAll();
+        });
+        readdEl.appendChild(b);
+      }
+    });
+    uriList.querySelectorAll('[data-modul]').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const ui = +e.target.dataset.modul;
+        const v = clamp10(e.target.value);
+        if(v !== e.target.value) e.target.value = v;
+        uris[ui].modul = v;
+        computeAll();
+      });
+    });
+  }
+
+  function computeAll(){
+    // update per-URI avg display without full re-render (avoid losing focus)
+    document.querySelectorAll('.uri-card').forEach((card, ui) => {
+      const gAvg = gradeAvg(uris[ui].grades);
+      const fin = uriFinal(uris[ui]);
+      card.querySelector('.uavg').textContent = fin===null ? '—' : fmt(fin);
+      const subLine = card.querySelector('.sub-line');
+      if(subLine) subLine.textContent = 'Media notelor: ' + (gAvg===null ? '—' : fmt(gAvg));
+    });
+
+    const finals = uris.map(uriFinal).filter(v => v !== null);
+    let genAvg = null;
+    if(finals.length === uris.length){
+      genAvg = finals.reduce((a,b)=>a+b,0) / uris.length;
+      genAvgEl.textContent = fmt(genAvg);
+    } else {
+      genAvgEl.textContent = `— (${finals.length}/${uris.length} complete)`;
+    }
+
+    const ef = parseFloat((examFinalEl.value||'').replace(',','.'));
+    if(genAvg !== null && !isNaN(ef)){
+      const total = 0.75*genAvg + 0.25*ef;
+      finalNumEl.textContent = fmt(total);
+      stickyNumEl.textContent = fmt(total);
+    } else {
+      finalNumEl.textContent = '—';
+      stickyNumEl.textContent = '—';
+    }
+  }
+
+  examFinalEl.addEventListener('input', e => {
+    const v = clamp10(e.target.value);
+    if(v !== e.target.value) e.target.value = v;
+    computeAll();
+  });
+  decimalsSel.addEventListener('change', () => { render(); computeAll(); });
+
+  render();
+  computeAll();
+})();
+</script>
+</body>
+</html>
